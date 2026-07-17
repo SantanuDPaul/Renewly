@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'accounts',
     'subscriptions',
+    'dashboard',
 ]
 
 MIDDLEWARE = [
@@ -128,3 +129,6 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = "accounts.User"
+
+LOGIN_REDIRECT_URL = 'dashboard'  # Redirect to dashboard after successful login
+LOGOUT_URL = 'login'  # Redirect to login page after logout

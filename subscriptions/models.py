@@ -53,10 +53,10 @@ class Subscription(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     status = models.CharField(max_length=20,choices=Status.choices,default=Status.ACTIVE,)
 
-class Meta:
-    ordering = ['renewal_date']
-    verbose_name_plural = "Subscriptions"
+    class Meta:
+        ordering = ['renewal_date']
+        verbose_name_plural = "Subscriptions"
 
 
-def __str__(self):
-    return self.service_name
+    def __str__(self):
+        return self.service_name
