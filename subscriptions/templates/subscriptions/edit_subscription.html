@@ -1,11 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Subscription</title>
-</head>
+{% block content %}
 
 <body>
     <h1>Edit Subscription</h1>
@@ -14,6 +9,4 @@
         {{ form.as_p }}
         <button type="submit">Save Changes</button>
     </form>
-</body>
-
-</html>
+{% endblock %}

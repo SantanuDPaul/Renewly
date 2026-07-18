@@ -1,58 +1,57 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'base.html' %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Subscriptions</title>
-</head>
+{% block content %}
 
-<body>
-    <h1>My Subscriptions</h1>
-    {% if subscriptions %}
-    <table>
-        <thead>
-            <tr>
-                <th>Service Name</th>
-                <th>Category</th>
-                <th>Start Date</th>
-                <th>Renewal Date</th>
-                <th>Price</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for subscription in subscriptions %}
-            <tr>
-                <td>{{ subscription.service_name }}</td>
-                <td>{{ subscription.category }}</td>
-                <td>{{ subscription.start_date|date:"d M Y" }}</td>
-                <td>{{ subscription.renewal_date|date:"d M Y" }}</td>
-                <td>{{ subscription.currency }} {{ subscription.price }}</td>
-                <td>{{ subscription.get_status_display }}</td>
-                <td>
-                    <a href="{% url 'edit_subscription' id=subscription.id %}">
-                        <button>Edit</button>
-                    </a>
-                    <a href="{% url 'delete_subscription' id=subscription.id %}">
-                        <button>Delete</button>
-                    </a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    <form method="post">
-        {% csrf_token %}
-        <button type="submit">Logout</button>
-    </form>
-    {% else %}
-    <p>You haven't added any subscriptions yet.</p>
 
-    <a href="{% url 'add_subscription' %}">
-        Add
-    </a>
-    {% endif %}
-</body>
+<h1>My Subscriptions</h1>
+{% if subscriptions %}
+<table class="table table-striped table-hover">
+    <thead>
+        <tr>
+            <th>Service Name</th>
+            <th>Category</th>
+            <th>Start Date</th>
+            <th>Renewal Date</th>
+            <th>Price</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for subscription in subscriptions %}
+        <tr>
+            <td>{{ subscription.service_name }}</td>
+            <td>{{ subscription.category }}</td>
+            <td>{{ subscription.start_date|date:"d M Y" }}</td>
+            <td>{{ subscription.renewal_date|date:"d M Y" }}</td>
+            <td>{{ subscription.currency }} {{ subscription.price }}</td>
+            <td>{{ subscription.get_status_display }}</td>
+            <td>
+                <a class="btn btn-primary btn-sm" href="{% url 'edit_subscription' id=subscription.id %}">
+                    Edit
+                </a>
+                <a class="btn btn-danger btn-sm" href="{% url 'delete_subscription' id=subscription.id %}">
+                    Delete
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 
-</html>
+<form method="post" action="{% url 'logout' %}">
+    {% csrf_token %}
+    <button type="submit">
+        Logout
+    </button>
+</form>
+{% else %}
+<p>You haven't added any subscriptions yet.</p>
+
+{% endif %}
+<a class="btn btn-success mb-3"
+   href="{% url 'add_subscription' %}">
+    Add Subscription
+</a>
+
+
+{% endblock %}

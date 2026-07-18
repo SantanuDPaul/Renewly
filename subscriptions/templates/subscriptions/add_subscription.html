@@ -1,13 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Subscription</title>
+{% extends "base.html" %}
+
+{% block content %}
+
     <form method="POST" action="{% url 'add_subscription' %}">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit">Add Subscription</button>
     </form>
-</body>
-</html>
+    
+{% endblock %}
