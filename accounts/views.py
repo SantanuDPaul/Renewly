@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.shortcuts import redirect, render
 from django.views import View
-from django.contrib.auth.views import LoginView
+from django.contrib.auth.views import LoginView, LogoutView
 
 from accounts.forms import RegistrationForm
 
@@ -24,4 +24,7 @@ class RegisterView(View):
 
 class CustomLoginView(LoginView):
     template_name = 'accounts/login.html'
-    
+
+
+class CustomLogoutView(LogoutView):
+    next_page = 'login'

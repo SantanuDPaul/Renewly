@@ -4,15 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ title }}</title>
+    <title>Edit Subscription</title>
 </head>
 
 <body>
-    <h1>Welcome, {{ user.username }}!</h1>
-    <p>You are successfully logged in!</p>
-    <form method="post">
+    <h1>Edit Subscription</h1>
+    <form method="POST">
         {% csrf_token %}
-        <button type="submit">Logout</button>
+        {{ form.as_p }}
+        <button type="submit">Save Changes</button>
     </form>
 </body>
 
