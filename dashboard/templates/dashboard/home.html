@@ -1,19 +1,75 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ title }}</title>
-</head>
+{% block content %}
 
-<body>
-    <h1>Welcome, {{ user.username }}!</h1>
-    <p>You are successfully logged in!</p>
-    <form method="post">
-        {% csrf_token %}
-        <button type="submit">Logout</button>
-    </form>
-</body>
+<h1 class="mb-2">Dashboard</h1>
 
-</html>
+<p class="text-muted">
+    Manage your subscriptions and keep track of upcoming renewals.
+</p>
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-body">
+
+                <h5 class="card-title">
+                    Total Subscriptions
+                </h5>
+
+                <h2>
+                    {{ total_subscriptions }}
+                </h2>
+
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-body">
+
+                <h5 class="card-title">
+                    Monthly Spending
+                </h5>
+
+                <h2>
+                    ₹{{ monthly_spending }}
+                </h2>
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row g-4 mt-1">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-body">
+
+                <h5 class="card-title">
+                    Yearly Spending
+                </h5>
+
+                <h2>
+                    ₹{{ yearly_spending }}
+                </h2>
+
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-body">
+
+                <h5 class="card-title">
+                    Renewing Soon
+                </h5>
+
+                <h2>
+                    {{ renewing_soon }}
+                </h2>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

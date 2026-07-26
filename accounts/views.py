@@ -25,6 +25,10 @@ class RegisterView(View):
 class CustomLoginView(LoginView):
     template_name = 'accounts/login.html'
 
+    def form_valid(self, form):
+        messages.success(self.request, "Successfully logged in.")
+        return super().form_valid(form)
+
 
 class CustomLogoutView(LogoutView):
     next_page = 'login'
