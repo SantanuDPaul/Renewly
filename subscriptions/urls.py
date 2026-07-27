@@ -6,4 +6,6 @@ urlpatterns = [
     path('add/', views.AddSubscriptionView.as_view(), name='add_subscription'),
     path('edit/<int:id>/', views.EditSubscriptionView.as_view(), name='edit_subscription'),
     path('delete/<int:id>/', views.DeleteSubscriptionView.as_view(), name='delete_subscription'),
+    path("archive/", views.ArchivedSubscriptionListView.as_view(), name="archive_subscriptions",
+),
 ]

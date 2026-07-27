@@ -3,8 +3,9 @@ from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from subscriptions.forms import SubscriptionForm
 from django.contrib import messages
-
-
+from .models import Category
+from django.core.paginator import Paginator
+from datetime import date, timedelta
 
 # Create your views here.
 
@@ -75,17 +76,83 @@ class DeleteSubscriptionView(LoginRequiredMixin, View):
 
 class SubscriptionListView(LoginRequiredMixin, View):
     def get(self, request):
-        all_subscriptions = request.user.subscriptions.all().order_by("-renewal_date") # Get subscriptions for the logged-in user
+        all_subscriptions = request.user.subscriptions.filter(
+            status="ACTIVE"
+        ) # Get subscriptions for the logged-in user
         subscriptions = all_subscriptions
         search_query = request.GET.get("search","")
+        category_filter = request.GET.get("category", "")
+        status_filter = request.GET.get("status", "")
         if search_query:
             subscriptions = subscriptions.filter(
                 service_name__icontains=search_query
             )
+        if category_filter:
+            subscriptions = subscriptions.filter(
+                category_id=category_filter
+            )
+        if status_filter:
+            subscriptions = subscriptions.filter(
+                status=status_filter
+            )
+        
+
+        today = date.today()
+        soon = today + timedelta(days=7)
+
+        sort_by = request.GET.get("sort", "-renewal_date")
+        allowed_sorts = [
+            "-renewal_date",
+            "renewal_date",
+            "service_name",
+            "-service_name",
+            "price",
+            "-price",
+            "start_date",
+            "-start_date",
+        ]
+        if sort_by not in allowed_sorts:
+            sort_by = "-renewal_date"
+
+        subscriptions = subscriptions.order_by(sort_by)
+
+        paginator = Paginator(subscriptions, 5)
+
+        page_number = request.GET.get("page")
+
+        subscriptions = paginator.get_page(page_number)
+
+        categories = Category.objects.all()
         context = {
             "title": "My Subscriptions",
             "subscriptions": subscriptions,
             "search_query": search_query,
+            "category_filter": category_filter,
+            "status_filter": status_filter,
+            "categories": categories,
             "has_subscriptions": all_subscriptions.exists(),
+            "today": today,
+            "soon": soon,
+            "sort_by": sort_by,
         }
         return render(request, "subscriptions/subscription_list.html", context)
+
+class ArchivedSubscriptionListView(LoginRequiredMixin, View):
+    def get(self, request):
+
+        subscriptions = (
+            request.user.subscriptions
+            .filter(status="CANCELLED")
+            .order_by("-renewal_date")
+        )
+
+        context = {
+            "title": "Archived Subscriptions",
+            "subscriptions": subscriptions,
+        }
+
+        return render(
+            request,
+            "subscriptions/archive.html",
+            context,
+        )

@@ -71,5 +71,68 @@
         </div>
     </div>
 </div>
+<div class="card mt-4 shadow-sm">
+    <div class="card-header">
+        <h5 class="mb-0">Upcoming Renewals</h5>
+    </div>
+
+    <div class="card-body">
+
+        {% if upcoming_renewals %}
+
+        <div class="table-responsive">
+            <table class="table table-hover">
+
+                <thead>
+                    <tr>
+                        <th>Service</th>
+                        <th>Renewal Date</th>
+                        <th>Price</th>
+                        <th>Days Left</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                {% for subscription in upcoming_renewals %}
+
+                    <tr>
+                        <td>{{ subscription.service_name }}</td>
+                        <td>{{ subscription.renewal_date|date:"d M Y" }}</td>
+                        <td>{{ subscription.currency }} {{ subscription.price }}</td>
+                        <td>
+                            {% if subscription.days_left == 0 %}
+                            <span class="badge bg-danger">
+                                Today
+                            </span>
+                            {% elif subscription.days_left == 1 %}
+                            <span class="badge bg-warning text-dark">
+                                Tomorrow
+                            </span>
+                            {% else %}
+                            <span class="badge bg-success">
+                                {{ subscription.days_left }} days
+                            </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+        </div>
+
+        {% else %}
+
+        <p class="text-muted mb-0">
+            No subscriptions renewing in the next 7 days.
+        </p>
+
+        {% endif %}
+
+    </div>
+</div>
 
 {% endblock %}

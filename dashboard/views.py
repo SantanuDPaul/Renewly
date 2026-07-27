@@ -28,9 +28,23 @@ class DashboardView(LoginRequiredMixin, View):
         today = date.today()
         next_week = today + timedelta(days=7)
 
+        upcoming_renewals = (
+            subscriptions.filter(
+                status="ACTIVE",
+                renewal_date__range=[today, next_week]
+            )
+            .order_by("renewal_date")
+        )
+
         renewing_soon_count = subscriptions.filter(
-           renewal_date__range=[today, next_week]
+            status="ACTIVE",
+            renewal_date__range=[today, next_week]
         ).count()
+
+        for subscription in upcoming_renewals:
+            subscription.days_left = (
+                subscription.renewal_date - today
+            ).days
 
         context = {
         "title": "Dashboard",
@@ -38,6 +52,7 @@ class DashboardView(LoginRequiredMixin, View):
         "monthly_spending": monthly_spending,
         "yearly_spending": yearly_spending,
         "renewing_soon": renewing_soon_count,
+        "upcoming_renewals": upcoming_renewals,
         }
 
         return render(
