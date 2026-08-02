@@ -2,102 +2,116 @@
 
 {% block content %}
 
-<h2 class="mb-1">
-    {{ subscription.service_name }}
-</h2>
+<div class="d-flex justify-content-between align-items-center mb-4">
 
-<p class="text-muted mb-4">
-    Subscription Activity History
-</p>
+    <div>
+        <h2 class="mb-1">
+            {{ subscription.service_name }}
+        </h2>
 
-<p class="text-muted">
-    Subscription Activity
-</p>
-
-{% if history %}
-
-<div class="list-group">
-
-    {% for item in history %}
-
-    <div class="list-group-item">
-
-        <div class="d-flex justify-content-between">
-
-            {% if item.action == "CREATED" %}
-            <span class="badge bg-success">
-                Created
-            </span>
-
-            {% elif item.action == "RENEWED" %}
-            <span class="badge bg-primary">
-                Renewed
-            </span>
-
-            {% elif item.action == "CANCELLED" %}
-            <span class="badge bg-warning text-dark">
-                Cancelled
-            </span>
-
-            {% elif item.action == "RESTORED" %}
-            <span class="badge bg-info text-dark">
-                Restored
-            </span>
-
-            {% endif %}
-
-            <small class="text-muted">
-                {{ item.created_at|date:"d M Y H:i" }}
-            </small>
-
-        </div>
-
-        {% if item.old_renewal_date and item.new_renewal_date %}
-
-        <div class="mt-2">
-
-            {% if item.old_renewal_date and item.new_renewal_date %}
-            <div class="mt-2 small text-muted">
-
-                Renewal Date Changed
-
-                <br>
-
-                <strong>
-                    {{ item.old_renewal_date|date:"d M Y" }}
-                </strong>
-
-                →
-
-                <strong>
-                    {{ item.new_renewal_date|date:"d M Y" }}
-                </strong>
-
-            </div>
-            {% endif %}
-
-        </div>
-
-        {% endif %}
-
+        <p class="text-muted mb-0">
+            View all activities for this subscription.
+        </p>
     </div>
 
-    {% endfor %}
+    <a href="{% url 'subscription_list' %}" class="btn btn-outline-secondary">
+
+        <i class="bi bi-arrow-left"></i>
+        My Subscriptions
+
+    </a>
 
 </div>
 
-{% else %}
+<div class="card shadow border-0">
+    <div class="card-body">
+        {% if history %}
 
-<div class="alert alert-info">
-    No history available.
+        <div class="list-group">
+
+            {% for item in history %}
+
+            <div class="list-group-item py-3">
+
+                <div class="d-flex justify-content-between">
+
+                    {% if item.action == "CREATED" %}
+                    <span class="badge bg-success">
+                        <i class="bi bi-plus-circle"></i>
+                        Created
+                    </span>
+                    {% elif item.action == "RENEWED" %}
+                    <span class="badge bg-primary">
+                        <i class="bi bi-arrow-repeat"></i>
+                        Renewed
+                    </span>
+                    {% elif item.action == "CANCELLED" %}
+                    <span class="badge bg-warning text-dark">
+                        <i class="bi bi-archive"></i>
+                        Cancelled
+                    </span>
+                    {% elif item.action == "RESTORED" %}
+                    <span class="badge bg-info text-dark">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                        Restored
+                    </span>
+                    {% endif %}
+
+                    <small class="text-muted">
+                        {{ item.created_at|date:"d M Y H:i" }}
+                    </small>
+
+                </div>
+
+                {% if item.old_renewal_date and item.new_renewal_date %}
+
+                <div class="mt-2">
+
+                    {% if item.old_renewal_date and item.new_renewal_date %}
+                    <div class="mt-2 small text-muted">
+
+                        <p class="small text-muted mb-1">
+                            Renewal Date
+                        </p>
+
+                        <strong>
+                            {{ item.old_renewal_date|date:"d M Y" }}
+                        </strong>
+
+                        <div class="my-1">
+                            ↓
+                        </div>
+
+                        <strong>
+                            {{ item.new_renewal_date|date:"d M Y" }}
+                        </strong>
+
+                    </div>
+                    {% endif %}
+
+                </div>
+
+                {% endif %}
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+        {% else %}
+
+        <div class="alert alert-light border text-center">
+
+            <h5>No Activity Yet</h5>
+
+            <p class="mb-0 text-muted">
+                This subscription doesn't have any recorded activity.
+            </p>
+
+        </div>
+        {% endif %}
+    </div>
 </div>
-
-{% endif %}
-
-<a href="{% url 'subscription_list' %}" class="btn btn-secondary mt-4">
-
-← Back to My Subscriptions
-
-</a>
 
 {% endblock %}

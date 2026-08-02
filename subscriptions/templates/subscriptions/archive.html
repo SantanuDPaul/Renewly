@@ -3,79 +3,101 @@
 {% block content %}
 
 
-<h1 class="mb-4">
-    Archived Subscriptions
-</h1>
+<div class="d-flex justify-content-between align-items-center mb-4">
 
-<a href="{% url 'subscription_list' %}" class="btn btn-secondary mb-3">
-    ← Back to Subscriptions
-</a>
+    <div>
+        <h2 class="mb-1">
+            Archive
+        </h2>
 
-{% if subscriptions %}
-<table class="table table-striped table-hover">
-    <thead>
-        <tr>
-            <th>Service Name</th>
-            <th>Category</th>
-            <th>Start Date</th>
-            <th>Renewal Date</th>
-            <th>Price</th>
-            <th>Status</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for subscription in subscriptions %}
-        <tr>
-            <td>{{ subscription.service_name }}</td>
-            <td>{{ subscription.category }}</td>
-            <td>{{ subscription.start_date|date:"d M Y" }}</td>
-            <td>{{ subscription.renewal_date|date:"d M Y" }}</td>
-            <td>{{ subscription.currency }} {{ subscription.price }}</td>
-            <td>
-                {% if subscription.status == "CANCELLED" %}
-                <span class="badge bg-secondary">
-                    Cancelled
-                </span>
-                {% elif subscription.renewal_date < today %} <span class="badge bg-danger">
-                    Expired
-                    </span>
-                    {% elif subscription.renewal_date == today %}
-                    <span class="badge bg-danger">
-                        Due Today
-                    </span>
-                    {% elif subscription.renewal_date <= soon %} <span class="badge bg-warning text-dark">
-                        Due Soon
-                        </span>
-                        {% else %}
-                        <span class="badge bg-success">
-                            Active
-                        </span>
-                        {% endif %}
-            </td>
-            <td>
-                <form method="post" action="{% url 'restore_subscription' id=subscription.id %}" class="d-inline">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-success btn-sm">
-                        Restore
-                    </button>
-                </form>
-                <a href="{% url 'delete_subscription' id=subscription.id %}" class="btn btn-danger btn-sm">
-                    Delete
-                </a>
-            </td>
+        <p class="text-muted mb-0">
+            View and manage your cancelled subscriptions.
+        </p>
+    </div>
 
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+    <a href="{% url 'subscription_list' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i>
+        My Subscriptions
+    </a>
 
-
-{% else %}
-
-<div class="alert alert-info">
-    No archived subscriptions found.
 </div>
 
+{% if subscriptions %}
+<div class="card shadow border-0">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Service Name</th>
+                        <th>Category</th>
+                        <th>Start Date</th>
+                        <th>Renewal Date</th>
+                        <th>Price</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for subscription in subscriptions %}
+                    <tr>
+                        <td>{{ subscription.service_name }}</td>
+                        <td>{{ subscription.category }}</td>
+                        <td>{{ subscription.start_date|date:"d M Y" }}</td>
+                        <td>{{ subscription.renewal_date|date:"d M Y" }}</td>
+                        <td>{{ subscription.currency }} {{ subscription.price }}</td>
+                        <td class="text-center align-middle">
+                            <span class="badge rounded-pill bg-secondary">
+                                <i class="bi bi-archive"></i>
+                                Archived
+                            </span>
+                        </td>
+                        <td class="text-center align-middle">
+
+                            <div class="d-flex gap-2 flex-wrap justify-content-center">
+
+                                <form method="post" action="{% url 'restore_subscription' id=subscription.id %}">
+                                    {% csrf_token %}
+
+                                    <button type="submit" class="btn btn-success btn-sm">
+
+                                        <i class="bi bi-arrow-counterclockwise"></i>
+                                        Restore
+
+                                    </button>
+
+                                </form>
+
+                                <a href="{% url 'delete_subscription' id=subscription.id %}"
+                                    class="btn btn-danger btn-sm">
+
+                                    <i class="bi bi-trash"></i>
+                                    Delete
+
+                                </a>
+
+                            </div>
+
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% else %}
+
+        <div class="alert alert-light border text-center">
+
+            <h5>No Archived Subscriptions</h5>
+
+            <p class="mb-0 text-muted">
+                Cancelled subscriptions will appear here.
+            </p>
+
+        </div>
+
+    </div>
+</div>
 {% endif %}
 
 
