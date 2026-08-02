@@ -1,11 +1,37 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>Delete Subscription</h1>
-    <p>Are you sure you want to delete the subscription "<strong>{{ subscription.service_name }}</strong>"?</p>
-    <form method="POST">
-        {% csrf_token %}
-        <button type="submit">Yes</button>
-        <a href="{% url 'subscription_list' %}">Cancel</a>
-    </form>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+
+        <h2 class="mb-3 text-danger">
+            Delete Subscription
+        </h2>
+
+        <p>
+            Are you sure you want to permanently delete
+            <strong>{{ subscription.service_name }}</strong>?
+        </p>
+
+        <p class="text-danger">
+            This action cannot be undone.
+        </p>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <button type="submit" class="btn btn-danger">
+                Delete Permanently
+            </button>
+
+            <a href="{% url 'archive_subscriptions' %}" class="btn btn-secondary">
+                Go Back
+            </a>
+
+        </form>
+
+    </div>
+</div>
+
 {% endblock %}

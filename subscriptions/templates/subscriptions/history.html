@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2 class="mb-1">
+    {{ subscription.service_name }}
+</h2>
+
+<p class="text-muted mb-4">
+    Subscription Activity History
+</p>
+
+<p class="text-muted">
+    Subscription Activity
+</p>
+
+{% if history %}
+
+<div class="list-group">
+
+    {% for item in history %}
+
+    <div class="list-group-item">
+
+        <div class="d-flex justify-content-between">
+
+            {% if item.action == "CREATED" %}
+            <span class="badge bg-success">
+                Created
+            </span>
+
+            {% elif item.action == "RENEWED" %}
+            <span class="badge bg-primary">
+                Renewed
+            </span>
+
+            {% elif item.action == "CANCELLED" %}
+            <span class="badge bg-warning text-dark">
+                Cancelled
+            </span>
+
+            {% elif item.action == "RESTORED" %}
+            <span class="badge bg-info text-dark">
+                Restored
+            </span>
+
+            {% endif %}
+
+            <small class="text-muted">
+                {{ item.created_at|date:"d M Y H:i" }}
+            </small>
+
+        </div>
+
+        {% if item.old_renewal_date and item.new_renewal_date %}
+
+        <div class="mt-2">
+
+            {% if item.old_renewal_date and item.new_renewal_date %}
+            <div class="mt-2 small text-muted">
+
+                Renewal Date Changed
+
+                <br>
+
+                <strong>
+                    {{ item.old_renewal_date|date:"d M Y" }}
+                </strong>
+
+                →
+
+                <strong>
+                    {{ item.new_renewal_date|date:"d M Y" }}
+                </strong>
+
+            </div>
+            {% endif %}
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+    {% endfor %}
+
+</div>
+
+{% else %}
+
+<div class="alert alert-info">
+    No history available.
+</div>
+
+{% endif %}
+
+<a href="{% url 'subscription_list' %}" class="btn btn-secondary mt-4">
+
+← Back to My Subscriptions
+
+</a>
+
+{% endblock %}

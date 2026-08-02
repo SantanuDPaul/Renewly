@@ -3,9 +3,9 @@ from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from subscriptions.forms import SubscriptionForm
 from django.contrib import messages
-from .models import Category
 from django.core.paginator import Paginator
 from datetime import date, timedelta
+from .models import Category, SubscriptionHistory, HistoryAction
 
 # Create your views here.
 
@@ -24,10 +24,15 @@ class AddSubscriptionView(LoginRequiredMixin, View):
         form = SubscriptionForm(request.POST)
         if form.is_valid():
             subscription = form.save(commit=False)
-            subscription.user = request.user  # Associate the subscription with the logged-in user
+            subscription.user = request.user  
             subscription.save()
+            SubscriptionHistory.objects.create(
+                subscription=subscription,
+                action=HistoryAction.CREATED,
+            )
+
             messages.success(request, "Subscription added successfully.")
-            return redirect("subscription_list")  # Redirect to the subscription list after successful creation
+            return redirect("subscription_list")  
         
         context = {
                 "title": "Add Subscription",
@@ -51,29 +56,33 @@ class EditSubscriptionView(LoginRequiredMixin, View):
         if form.is_valid():
             form.save()
             messages.success(request, "Subscription updated successfully.")
-            return redirect("subscription_list")  # Redirect to the subscription list after successful update
-
+            return redirect("subscription_list")  
         context = {
             "title": "Edit Subscription",
             "form": form,
         }
         return render(request, "subscriptions/edit_subscription.html", context)
 
-class DeleteSubscriptionView(LoginRequiredMixin, View):
+class CancelSubscriptionView(LoginRequiredMixin, View):
     def get(self, request, id):
         subscription = get_object_or_404(request.user.subscriptions, id=id)
         context = {
-            "title": "Delete Subscription",
+            "title": "Cancel Subscription",
             "subscription": subscription,
         }
-        return render(request, "subscriptions/delete_subscription.html", context)
+        return render(request, "subscriptions/cancel_subscription.html", context)
 
     def post(self, request, id):
         subscription = get_object_or_404(request.user.subscriptions, id=id)
-        subscription.delete()
-        messages.success(request, "Subscription deleted successfully.")
-        return redirect("subscription_list")  # Redirect to the subscription list after successful deletion
-
+        subscription.status = "CANCELLED"
+        subscription.save()
+        SubscriptionHistory.objects.create(
+            subscription=subscription,
+            action=HistoryAction.CANCELLED,
+        )
+        messages.success(request,"Subscription archived successfully.")
+        return redirect("subscription_list")
+    
 class SubscriptionListView(LoginRequiredMixin, View):
     def get(self, request):
         all_subscriptions = request.user.subscriptions.filter(
@@ -156,3 +165,111 @@ class ArchivedSubscriptionListView(LoginRequiredMixin, View):
             "subscriptions/archive.html",
             context,
         )
+
+class SubscriptionHistoryView(LoginRequiredMixin, View):
+    def get(self, request, id):
+
+        subscription = get_object_or_404(
+            request.user.subscriptions,
+            id=id,
+        )
+
+        history = subscription.history.all()
+
+        context = {
+            "title": "Subscription History",
+            "subscription": subscription,
+            "history": history,
+        }
+
+        return render(
+            request,
+            "subscriptions/history.html",
+            context,
+        )
+
+class DeleteSubscriptionView(LoginRequiredMixin, View):
+    def get(self, request, id):
+        subscription = get_object_or_404(
+            request.user.subscriptions.filter(status="CANCELLED"),
+            id=id,
+        )
+
+        context = {
+            "title": "Delete Subscription",
+            "subscription": subscription,
+        }
+
+        return render(
+            request,
+            "subscriptions/delete_subscription.html",
+            context,
+        )
+
+    def post(self, request, id):
+        subscription = get_object_or_404(
+            request.user.subscriptions.filter(status="CANCELLED"),
+            id=id,
+        )
+
+        subscription.delete()
+
+        messages.success(
+            request,
+            "Subscription deleted permanently."
+        )
+
+        return redirect("archive_subscriptions")
+
+class RestoreSubscriptionView(LoginRequiredMixin, View):
+    def post(self, request, id):
+        subscription = get_object_or_404(
+            request.user.subscriptions.filter(status="CANCELLED"),
+            id=id,
+        )
+
+        subscription.status = "ACTIVE"
+        subscription.save()
+        SubscriptionHistory.objects.create(
+            subscription=subscription,
+            action=HistoryAction.RESTORED,
+        )
+
+        messages.success(
+            request,
+            "Subscription restored successfully."
+        )
+
+        return redirect("archive_subscriptions")
+class RenewSubscriptionView(LoginRequiredMixin, View):
+    def get(self, request, id):
+        subscription = get_object_or_404(
+            request.user.subscriptions.filter(status="ACTIVE"),
+            id=id,
+        )
+
+        context = {
+            "title": "Renew Subscription",
+            "subscription": subscription,
+        }
+
+        return render(
+            request,
+            "subscriptions/renew_subscription.html",
+            context,
+        )
+
+    def post(self, request, id):
+        subscription = get_object_or_404(
+            request.user.subscriptions.filter(status="ACTIVE"),
+            id=id,
+        )
+
+        subscription.renew()
+
+        messages.success(
+            request,
+            f"{subscription.service_name} renewed successfully. Next renewal: {subscription.renewal_date:%d %b %Y}."
+        )
+
+        return redirect("subscription_list")

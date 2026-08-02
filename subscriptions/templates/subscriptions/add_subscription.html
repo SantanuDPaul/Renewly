@@ -1,11 +1,149 @@
 {% extends "base.html" %}
 
 {% block content %}
+<h2 class="mb-1">
+    {{ title }}
+</h2>
 
-    <form method="POST" action="{% url 'add_subscription' %}">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Add Subscription</button>
-    </form>
-    
+<p class="text-muted mb-4">
+    Fill in the details below to start tracking a new subscription.
+</p>
+<div class="card shadow border-0">
+    <div class="card-body p-4">
+
+        <form method="POST">
+
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {{ form.non_field_errors }}
+            </div>
+            {% endif %}
+
+            <div class="mb-3">
+                {{ form.service_name.label_tag }}
+                {{ form.service_name }}
+                {% if form.service_name.errors %}
+                <div class="text-danger small mt-1">
+                    {{ form.service_name.errors }}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="row">
+
+                <div class="col-md-6 mb-3">
+                    {{ form.category.label_tag }}
+                    {{ form.category }}
+                    {% if form.category.errors %}
+                    <div class="text-danger small mt-1">
+                        {{ form.category.errors }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    {{ form.billing_cycle.label_tag }}
+                    {{ form.billing_cycle }}
+                    {% if form.billing_cycle.errors %}
+                    <div class="text-danger small mt-1">
+                        {{ form.billing_cycle.errors }}
+                    </div>
+                    {% endif %}
+                </div>
+
+            </div>
+
+            <div class="row">
+
+                <div class="col-md-6 mb-3">
+                    {{ form.price.label_tag }}
+                    {{ form.price }}
+                    {% if form.price.errors %}
+                    <div class="text-danger small mt-1">
+                        {{ form.price.errors }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    {{ form.currency.label_tag }}
+                    {{ form.currency }}
+                    {% if form.currency.errors %}
+                    <div class="text-danger small mt-1">
+                        {{ form.currency.errors }}
+                    </div>
+                    {% endif %}
+                </div>
+
+            </div>
+
+            <div class="row">
+
+                <div class="col-md-6 mb-3">
+                    {{ form.start_date.label_tag }}
+                    {{ form.start_date }}
+                    {% if form.start_date.errors %}
+                    <div class="text-danger small mt-1">
+                        {{ form.start_date.errors }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    {{ form.renewal_date.label_tag }}
+                    {{ form.renewal_date }}
+                    {% if form.renewal_date.errors %}
+                    <div class="text-danger small mt-1">
+                        {{ form.renewal_date.errors }}
+                    </div>
+                    {% endif %}
+                </div>
+
+            </div>
+
+            <div class="mb-3">
+                {{ form.payment_method.label_tag }}
+                {{ form.payment_method }}
+
+                {% if form.payment_method.errors %}
+                <div class="text-danger small mt-1">
+                    {{ form.payment_method.errors }}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                {{ form.website.label_tag }}
+                {{ form.website }}
+
+                {% if form.website.errors %}
+                <div class="text-danger small mt-1">
+                    {{ form.website.errors }}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                {{ form.notes.label_tag }}
+                {{ form.notes }}
+            </div>
+
+            <div class="d-flex gap-2 mt-4">
+
+                <button class="btn btn-primary px-4" type="submit">
+                    Add Subscription
+                </button>
+
+                <a href="{% url 'subscription_list' %}" class="btn btn-outline-secondary">
+                    Cancel
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
 {% endblock %}

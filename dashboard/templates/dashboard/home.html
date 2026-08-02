@@ -4,19 +4,19 @@
 
 <h1 class="mb-2">Dashboard</h1>
 
-<p class="text-muted">
+<p class="text-muted mb-4">
     Manage your subscriptions and keep track of upcoming renewals.
 </p>
 <div class="row g-4">
     <div class="col-md-6">
-        <div class="card shadow-sm">
-            <div class="card-body">
+        <div class="card shadow border-0 h-100">
+            <div class="card-body p-4">
 
                 <h5 class="card-title">
+                    <i class="bi bi-collection text-primary"></i>
                     Total Subscriptions
                 </h5>
-
-                <h2>
+                <h2 class="display-5 fw-bold text-center">
                     {{ total_subscriptions }}
                 </h2>
 
@@ -24,14 +24,15 @@
         </div>
     </div>
     <div class="col-md-6">
-        <div class="card shadow-sm">
-            <div class="card-body">
+        <div class="card shadow border-0 h-100">
+            <div class="card-body p-4">
 
                 <h5 class="card-title">
+                    <i class="bi bi-cash-stack text-success"></i>
                     Monthly Spending
                 </h5>
+                <h2 class="display-5 fw-bold text-center">
 
-                <h2>
                     ₹{{ monthly_spending }}
                 </h2>
 
@@ -41,14 +42,15 @@
 </div>
 <div class="row g-4 mt-1">
     <div class="col-md-6">
-        <div class="card shadow-sm">
-            <div class="card-body">
+        <div class="card shadow border-0 h-100">
+            <div class="card-body p-4">
 
                 <h5 class="card-title">
+                    <i class="bi bi-wallet2 text-warning"></i>
                     Yearly Spending
                 </h5>
 
-                <h2>
+                <h2 class="display-5 fw-bold text-center">
                     ₹{{ yearly_spending }}
                 </h2>
 
@@ -56,14 +58,15 @@
         </div>
     </div>
     <div class="col-md-6">
-        <div class="card shadow-sm">
-            <div class="card-body">
+        <div class="card shadow border-0 h-100">
+            <div class="card-body p-4">
 
                 <h5 class="card-title">
+                    <i class="bi bi-calendar-event text-danger"></i>
                     Renewing Soon
                 </h5>
 
-                <h2>
+                <h2 class="display-5 fw-bold text-center">
                     {{ renewing_soon }}
                 </h2>
 
@@ -76,7 +79,7 @@
         <h5 class="mb-0">Upcoming Renewals</h5>
     </div>
 
-    <div class="card-body">
+    <div class="card-body p-4">
 
         {% if upcoming_renewals %}
 
@@ -94,7 +97,7 @@
 
                 <tbody>
 
-                {% for subscription in upcoming_renewals %}
+                    {% for subscription in upcoming_renewals %}
 
                     <tr>
                         <td>{{ subscription.service_name }}</td>
@@ -117,7 +120,7 @@
                         </td>
                     </tr>
 
-                {% endfor %}
+                    {% endfor %}
 
                 </tbody>
 

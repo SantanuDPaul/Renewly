@@ -1,5 +1,7 @@
 from django.db import models
 from django.conf import settings
+from datetime import date
+from dateutil.relativedelta import relativedelta
 
 # Create your models here.
 class Category(models.Model):
@@ -57,6 +59,67 @@ class Subscription(models.Model):
         ordering = ['renewal_date']
         verbose_name_plural = "Subscriptions"
 
+    def renew(self):
+        """
+        Advance the renewal date based on the billing cycle.
+        If the subscription is overdue, renew from today.
+        """
 
+        old_date = self.renewal_date
+
+        base_date = max(self.renewal_date, date.today())
+
+        if self.billing_cycle == BillingCycle.MONTHLY:
+            self.renewal_date = base_date + relativedelta(months=1)
+
+        elif self.billing_cycle == BillingCycle.YEARLY:
+            self.renewal_date = base_date + relativedelta(years=1)
+
+        self.save()
+
+        SubscriptionHistory.objects.create(
+            subscription=self,
+            action=HistoryAction.RENEWED,
+            old_renewal_date=old_date,
+            new_renewal_date=self.renewal_date,
+        )
     def __str__(self):
         return self.service_name
+    
+class HistoryAction(models.TextChoices):
+    CREATED = "CREATED", "Created"
+    RENEWED = "RENEWED", "Renewed"
+    CANCELLED = "CANCELLED", "Cancelled"
+    RESTORED = "RESTORED", "Restored"
+
+
+class SubscriptionHistory(models.Model):
+    subscription = models.ForeignKey(
+        Subscription,
+        on_delete=models.CASCADE,
+        related_name="history",
+    )
+
+    action = models.CharField(
+        max_length=20,
+        choices=HistoryAction.choices,
+    )
+
+    old_renewal_date = models.DateField(
+        null=True,
+        blank=True,
+    )
+
+    new_renewal_date = models.DateField(
+        null=True,
+        blank=True,
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name_plural = "Subscription History"
+
+    def __str__(self):
+        return f"{self.subscription.service_name} - {self.get_action_display()}"

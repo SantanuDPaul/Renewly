@@ -36,32 +36,34 @@
                 <span class="badge bg-secondary">
                     Cancelled
                 </span>
-                {% elif subscription.renewal_date < today %}
-                <span class="badge bg-danger">
+                {% elif subscription.renewal_date < today %} <span class="badge bg-danger">
                     Expired
-                </span>
-                {% elif subscription.renewal_date == today %}
-                <span class="badge bg-danger">
-                    Due Today
-                </span>
-                {% elif subscription.renewal_date <= soon %}
-                <span class="badge bg-warning text-dark">
-                    Due Soon
-                </span>
-                {% else %}
-                <span class="badge bg-success">
-                    Active
-                </span>
-                {% endif %}
+                    </span>
+                    {% elif subscription.renewal_date == today %}
+                    <span class="badge bg-danger">
+                        Due Today
+                    </span>
+                    {% elif subscription.renewal_date <= soon %} <span class="badge bg-warning text-dark">
+                        Due Soon
+                        </span>
+                        {% else %}
+                        <span class="badge bg-success">
+                            Active
+                        </span>
+                        {% endif %}
             </td>
             <td>
-                <a class="btn btn-primary btn-sm" href="{% url 'edit_subscription' id=subscription.id %}">
-                    Edit
-                </a>
-                <a class="btn btn-danger btn-sm" href="{% url 'delete_subscription' id=subscription.id %}">
+                <form method="post" action="{% url 'restore_subscription' id=subscription.id %}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success btn-sm">
+                        Restore
+                    </button>
+                </form>
+                <a href="{% url 'delete_subscription' id=subscription.id %}" class="btn btn-danger btn-sm">
                     Delete
                 </a>
             </td>
+
         </tr>
         {% endfor %}
     </tbody>
