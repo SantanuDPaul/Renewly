@@ -3,6 +3,37 @@ from .models import Subscription
 
 
 class SubscriptionSerializer(serializers.ModelSerializer):
+    def validate_price(self, value):
+        if value <= 0:
+            raise serializers.ValidationError(
+                "Price must be greater than zero."
+            )
+        return value
+    def validate(self, data):
+        start_date = data.get(
+            'start_date',
+            self.instance.start_date if self.instance else None
+        )
+
+        renewal_date = data.get(
+            'renewal_date',
+            self.instance.renewal_date if self.instance else None
+        )
+
+        if start_date and renewal_date:
+            if renewal_date <= start_date:
+                raise serializers.ValidationError({
+                    "renewal_date": "Renewal date must be after the start date."
+                })
+
+        return data
+    def validate_service_name(self, value):
+        if not value.strip():
+            raise serializers.ValidationError(
+                "Service name cannot be empty."
+            )
+
+        return value.strip()
     class Meta:
         model = Subscription
         fields = [
