@@ -4,6 +4,8 @@ from rest_framework.test import APITestCase
 
 from .models import Category, Subscription, SubscriptionHistory
 
+from datetime import timedelta
+from django.utils import timezone
 
 class SubscriptionAPITests(APITestCase):
 
@@ -379,3 +381,69 @@ class SubscriptionAPITests(APITestCase):
         )
 
         self.assertEqual(response.data, [])
+
+    def test_renewal_calendar_only_shows_upcoming_subscriptions(self):
+        from django.contrib.auth import get_user_model
+
+        User = get_user_model()
+        user = User.objects.create_user(username='calendar_user')
+
+        category = Category.objects.create(
+            name='Entertainment',
+            slug='entertainment'
+        )
+
+        today = timezone.localdate()
+
+        for name, days in [('Upcoming', 10), ('Far Away', 60)]:
+            Subscription.objects.create(
+                user=user,
+                category=category,
+                service_name=name,
+                price='199.00',
+                billing_cycle='MONTHLY',
+                currency='INR',
+                start_date=today - timedelta(days=5),
+                renewal_date=today + timedelta(days=days),
+                payment_method='UPI'
+            )
+
+        self.client.force_authenticate(user=user)
+
+        response = self.client.get(reverse('renewal-calendar'))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]['service_name'], 'Upcoming')
+    def test_renewal_calendar_excludes_cancelled_subscriptions(self):
+        from django.contrib.auth import get_user_model
+
+        User = get_user_model()
+        user = User.objects.create_user(username='cancel_test_user')
+
+        category = Category.objects.create(
+            name='Entertainment',
+            slug='entertainment'
+        )
+
+        today = timezone.localdate()
+
+        Subscription.objects.create(
+            user=user,
+            category=category,
+            service_name='Cancelled Netflix',
+            price='199.00',
+            billing_cycle='MONTHLY',
+            currency='INR',
+            start_date=today - timedelta(days=5),
+            renewal_date=today + timedelta(days=10),
+            payment_method='UPI',
+            status='CANCELLED'
+        )
+
+        self.client.force_authenticate(user=user)
+
+        response = self.client.get(reverse('renewal-calendar'))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 0)

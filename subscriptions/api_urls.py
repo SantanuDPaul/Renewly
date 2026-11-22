@@ -7,9 +7,15 @@ urlpatterns = [
         api_views.subscription_list_create,
         name='subscription-list-create'
     ),
-    path('history/', 
+    path(
+        'history/', 
          api_views.subscription_history, 
          name='subscription-history'
+    ),
+    path(
+        'calendar/',
+         api_views.renewal_calendar,
+         name='renewal-calendar'
     ),
     path(
         '<int:pk>/',

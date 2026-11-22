@@ -7,9 +7,11 @@ from rest_framework.pagination import PageNumberPagination
 
 from .models import Subscription, SubscriptionHistory
 from .serializers import SubscriptionSerializer, SubscriptionHistorySerializer
-from django.shortcuts import get_object_or_404
 
+from django.shortcuts import get_object_or_404
 from django.db.models import Q
+from datetime import timedelta
+from django.utils import timezone
 
 @api_view(['GET', 'POST'])
 def subscription_list_create(request):
@@ -123,6 +125,25 @@ def subscription_history(request):
 
     serializer = SubscriptionHistorySerializer(
         history,
+        many=True
+    )
+
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def renewal_calendar(request):
+    today = timezone.localdate()
+    end_date = today + timedelta(days=30)
+
+    subscriptions = Subscription.objects.filter(
+        user=request.user,
+        status='ACTIVE',
+        renewal_date__gte=today,
+        renewal_date__lte=end_date
+    ).order_by('renewal_date')
+
+    serializer = SubscriptionSerializer(
+        subscriptions,
         many=True
     )
 
