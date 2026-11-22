@@ -201,3 +201,129 @@ class SubscriptionAPITests(APITestCase):
         self.assertTrue(
             Subscription.objects.filter(pk=subscription.id).exists()
         )
+    def test_subscription_cannot_have_negative_price(self):
+        from django.contrib.auth import get_user_model
+
+        User = get_user_model()
+
+        user = User.objects.create_user(
+            username='validation_user',
+            email='validation@example.com',
+            password='testpassword123'
+        )
+
+        category = Category.objects.create(
+            name='Entertainment',
+            slug='entertainment'
+        )
+
+        self.client.force_authenticate(user=user)
+
+        url = reverse('subscription-list-create')
+
+        data = {
+            'service_name': 'Netflix',
+            'category': category.id,
+            'price': '-100.00',
+            'billing_cycle': 'MONTHLY',
+            'currency': 'INR',
+            'start_date': '2026-11-22',
+            'renewal_date': '2026-12-22',
+            'payment_method': 'UPI'
+        }
+
+        response = self.client.post(url, data, format='json')
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_400_BAD_REQUEST
+        )
+
+        self.assertEqual(
+            Subscription.objects.count(),
+            0
+        )
+    def test_subscription_cannot_have_invalid_renewal_date(self):
+        from django.contrib.auth import get_user_model
+
+        User = get_user_model()
+
+        user = User.objects.create_user(
+            username='date_test_user',
+            email='datetest@example.com',
+            password='testpassword123'
+        )
+
+        category = Category.objects.create(
+            name='Entertainment',
+            slug='entertainment'
+        )
+
+        self.client.force_authenticate(user=user)
+
+        url = reverse('subscription-list-create')
+
+        data = {
+            'service_name': 'Netflix',
+            'category': category.id,
+            'price': '199.00',
+            'billing_cycle': 'MONTHLY',
+            'currency': 'INR',
+            'start_date': '2026-12-22',
+            'renewal_date': '2026-11-22',
+            'payment_method': 'UPI'
+        }
+
+        response = self.client.post(url, data, format='json')
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_400_BAD_REQUEST
+        )
+
+        self.assertEqual(
+            Subscription.objects.count(),
+            0
+        )
+    def test_subscription_cannot_have_empty_service_name(self):
+        from django.contrib.auth import get_user_model
+
+        User = get_user_model()
+
+        user = User.objects.create_user(
+            username='name_test_user',
+            email='nametest@example.com',
+            password='testpassword123'
+        )
+
+        category = Category.objects.create(
+            name='Entertainment',
+            slug='entertainment'
+        )
+
+        self.client.force_authenticate(user=user)
+
+        url = reverse('subscription-list-create')
+
+        data = {
+            'service_name': '   ',
+            'category': category.id,
+            'price': '199.00',
+            'billing_cycle': 'MONTHLY',
+            'currency': 'INR',
+            'start_date': '2026-11-22',
+            'renewal_date': '2026-12-22',
+            'payment_method': 'UPI'
+        }
+
+        response = self.client.post(url, data, format='json')
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_400_BAD_REQUEST
+        )
+
+        self.assertEqual(
+            Subscription.objects.count(),
+            0
+        )
