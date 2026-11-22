@@ -2,7 +2,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from .models import Category, Subscription
+from .models import Category, Subscription, SubscriptionHistory
 
 
 class SubscriptionAPITests(APITestCase):
@@ -327,3 +327,55 @@ class SubscriptionAPITests(APITestCase):
             Subscription.objects.count(),
             0
         )
+    def test_unauthenticated_user_cannot_access_history(self):
+        url = reverse('subscription-history')
+
+        response = self.client.get(url)
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_401_UNAUTHORIZED
+        )
+    def test_user_cannot_see_another_users_history(self):
+        from django.contrib.auth import get_user_model
+
+        User = get_user_model()
+
+        user_a = User.objects.create_user(username='user_a')
+        user_b = User.objects.create_user(username='user_b')
+
+        category = Category.objects.create(
+            name='Entertainment',
+            slug='entertainment'
+        )
+
+        subscription = Subscription.objects.create(
+            user=user_a,
+            category=category,
+            service_name='Netflix',
+            price='199.00',
+            billing_cycle='MONTHLY',
+            currency='INR',
+            start_date='2026-11-22',
+            renewal_date='2026-12-22',
+            payment_method='UPI'
+        )
+
+        SubscriptionHistory.objects.create(
+            subscription=subscription,
+            action='CREATED',
+            new_renewal_date=subscription.renewal_date
+        )
+
+        self.client.force_authenticate(user=user_b)
+
+        response = self.client.get(
+            reverse('subscription-history')
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_200_OK
+        )
+
+        self.assertEqual(response.data, [])

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Subscription
+from .models import Subscription, SubscriptionHistory
 
 
 class SubscriptionSerializer(serializers.ModelSerializer):
@@ -59,3 +59,16 @@ class SubscriptionSerializer(serializers.ModelSerializer):
             'created_at',
             'updated_at',
         ]
+class SubscriptionHistorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubscriptionHistory
+        fields = [
+            'id',
+            'subscription',
+            'action',
+            'old_renewal_date',
+            'new_renewal_date',
+            'created_at',
+        ]
+
+        read_only_fields = fields

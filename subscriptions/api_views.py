@@ -5,8 +5,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
 
-from .models import Subscription
-from .serializers import SubscriptionSerializer
+from .models import Subscription, SubscriptionHistory
+from .serializers import SubscriptionSerializer, SubscriptionHistorySerializer
 from django.shortcuts import get_object_or_404
 
 from django.db.models import Q
@@ -115,3 +115,15 @@ def subscription_detail(request, pk):
         subscription.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+@api_view(['GET'])
+def subscription_history(request):
+    history = SubscriptionHistory.objects.filter(
+        subscription__user=request.user
+    ).order_by('-created_at')
+
+    serializer = SubscriptionHistorySerializer(
+        history,
+        many=True
+    )
+
+    return Response(serializer.data)

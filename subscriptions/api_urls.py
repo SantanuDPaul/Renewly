@@ -7,6 +7,10 @@ urlpatterns = [
         api_views.subscription_list_create,
         name='subscription-list-create'
     ),
+    path('history/', 
+         api_views.subscription_history, 
+         name='subscription-history'
+    ),
     path(
         '<int:pk>/',
         api_views.subscription_detail,
